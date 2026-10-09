@@ -33,11 +33,13 @@ def build_transforms(augment: bool, image_size: int = 32):
 
 
 def get_loaders(data_dir="data", augment=True, image_size=32, batch_size=128,
-                val_size=5000, seed=0, num_workers=2, fake=False):
+                val_size=5000, seed=0, num_workers=2, fake=False, train_limit=0):
     """Build train / validation / test DataLoaders.
 
     fake=True swaps CIFAR-10 for a tiny random dataset. It exists only to check
     that the code runs end to end without downloading anything.
+    train_limit > 0 trains on only that many (randomly chosen) training images, which
+    makes CPU-only runs practical. Validation and test sets are never reduced.
     """
     train_tf, eval_tf = build_transforms(augment, image_size)
 
@@ -57,6 +59,8 @@ def get_loaders(data_dir="data", augment=True, image_size=32, batch_size=128,
     generator = torch.Generator().manual_seed(seed)
     permutation = torch.randperm(len(full_train), generator=generator).tolist()
     val_idx, train_idx = permutation[:val_size], permutation[val_size:]
+    if train_limit:  # the permutation is already shuffled, so this is a random subset
+        train_idx = train_idx[:train_limit]
 
     kwargs = dict(num_workers=num_workers, pin_memory=torch.cuda.is_available())
     train_loader = DataLoader(Subset(full_train, train_idx), batch_size=batch_size,

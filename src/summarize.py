@@ -24,15 +24,16 @@ def build_table(results_dir):
         low, high = m["test_accuracy_ci95"]
         rows.append(
             f"| `{path.parent.name}` | {model} | {'yes' if cfg['augment'] else 'no'} "
+            f"| {m.get('train_images', 'n/a')} | {cfg['epochs']} "
             f"| {m['parameters'] / 1e6:.2f}M | {m['best_val_accuracy'] * 100:.2f} "
             f"| {m['test_accuracy'] * 100:.2f} ({low * 100:.1f}–{high * 100:.1f}) "
             f"| {m['train_val_gap_at_best'] * 100:+.1f} |"
         )
     if not rows:
         raise SystemExit(f"No metrics.json files found under {results_dir}/")
-    header = ("| Run | Model | Augmentation | Parameters | Val accuracy (%) "
+    header = ("| Run | Model | Augmentation | Train images | Epochs | Parameters | Val accuracy (%) "
               "| Test accuracy (%) [95% CI] | Train − val gap (pp) |\n"
-              "|---|---|---|---|---|---|---|\n")
+              "|---|---|---|---|---|---|---|---|---|\n")
     return header + "\n".join(rows)
 
 

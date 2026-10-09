@@ -30,6 +30,8 @@ def parse_args():
     p.add_argument("--image-size", type=int, default=32,
                    help="images are resized to this size (use 64 for resnet18)")
     p.add_argument("--epochs", type=int, default=30)
+    p.add_argument("--train-subset", type=int, default=0,
+                   help="train on only this many images (0 = all 45,000); useful on a CPU")
     p.add_argument("--batch-size", type=int, default=128)
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--weight-decay", type=float, default=0.01)
@@ -90,7 +92,8 @@ def main():
 
     train_loader, val_loader, test_loader = get_loaders(
         args.data_dir, args.augment, args.image_size, args.batch_size,
-        seed=args.seed, num_workers=args.num_workers, fake=args.fake)
+        seed=args.seed, num_workers=args.num_workers, fake=args.fake,
+        train_limit=args.train_subset)
 
     model = build_model(args.model, pretrained=args.pretrained).to(device)
     criterion = nn.CrossEntropyLoss()
@@ -129,6 +132,7 @@ def main():
         "config": vars(args),
         "device": str(device),
         "parameters": count_parameters(model),
+        "train_images": len(train_loader.dataset),
         "best_epoch": best_epoch,
         "best_val_accuracy": best_val,
         "train_val_gap_at_best": best["train_acc"] - best["val_acc"],
