@@ -51,10 +51,12 @@ python -m src.summarize --update-readme
 A GPU is strongly recommended. On Google Colab choose *Runtime → Change runtime type → GPU*, then:
 
 ```python
-!git clone https://github.com/<your-username>/cifar10-image-classifier.git
+!git clone https://github.com/nikalab7/cifar10-image-classifier.git
 %cd cifar10-image-classifier
 !pip install -q -r requirements.txt
-!python -m src.train --model small_cnn --augment --epochs 30 --out-dir results/small_cnn_aug
+!python -m src.train --model small_cnn --no-augment --train-subset 10000 --epochs 15 --out-dir results/small_cnn_noaug
+!python -m src.train --model small_cnn --augment --train-subset 10000 --epochs 15 --out-dir results/small_cnn_aug
+!python -m src.summarize --update-readme
 ```
 
 ## Results
